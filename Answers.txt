@@ -1,0 +1,91 @@
+Q. Describe in your own words what is GIL in python, and the pros and cons of it
+
+A. The Python Global Interpreter Lock or GIL, in simple words, is a lock that allows only one thread 
+to hold the control of the Python interpreter.
+Also note that the GIL is only relevant to CPython (The normal reference version) and not to other 
+versions such as PyPy, JPython, IPython for example.
+CPython uses a reference counting mechanism to keep track of whether objects can be removed from memory; 
+each time a value is assigned, or inserted to a list or dictionary or set) then it’s reference count is 
+incremented; and each time a value is removed from a variable then the reference count is decremented. 
+If the reference count ever reaches zero, that object is removed by a process called garbage protection.
+You can imagine if more than one thread was trying to update an objects reference count at the same time; 
+things could get very confusing.
+The GIL is the mechanism that was chosen to stop this confusion. Essentially when a thread wants to run 
+some python code, the first thing it does is grab the GIL (Global Interpreter Lock). If another thread 
+also wants to run some python code it now has to wait until the first thread pauses or stops executing 
+Python code. It can be paused for a number of reasons - the lock won’t be permanent. Python pauses 
+thread when waiting for I/O for instance and the GIL is then released. The GIL is also released when the 
+thread is scheduled out.
+Probably the biggest impact of the GIL is that having a single shared object between all threads forces 
+all threads into a single core - even if none of them share any other data; so threading is effectively 
+not concurrent ; since it uses CPU bound threads (not the sort of concurrency you might expect in a 
+Multi-core CPU) .
+Essentially the GIl means that Threaded programs running Python code are disadvantaged and might even 
+run slower than non- threaded depending in what exactly they are doing.
+
+attach an example of GIL where i use multi-threading its take approximate same time. this is because of
+GIL in python (Example Code : GIL-Example.py)
+
+Q. If you see that a SQL SELECT query is slow - what would you do to improve it?
+
+A. Some Options we will do for improve SELECT
+
+    1. While using SELECT statements use only the columns you need in your result, instead of 
+    using SELECT * from … This will reduce the result size considerably and speed your SQL query
+
+    2. When you nest a query/view inside another query/view it results in many data return for every 
+    single query and slows down your query considerably. Sometimes, the database server may even time 
+    out and return nothing
+
+    3. While querying an indexed column, use an IN-list predicate instead of using mathematical operators 
+    such as ‘=’ or logical operators such as AND/OR. The IN predicate can speed up your SQL queries as 
+    the query optimizer sorts the IN-list to match the sort sequence of INDEX, leading to faster results
+
+    4. JOINS are time consuming as your database has to examine each row for a match. If you also use 
+    OR condition in a JOIN, your database will take double the time to match records. As mentioned 
+    earlier, use IN operator instead
+
+    5. Avoid using globally unique identifiers as they can slow down your queries. Use DATE or IDENTITY 
+    instead
+
+Q. What are the differences between “arrow” and “traditional” functions in javascript?
+
+A. 
+Arrow function:
+    Arrow functions do not bind their own this and are always anonymous. Arrow functions also cannot be 
+    used as constructors in JavaScript. Arrow functions get their this from their Lexical context they 
+    were declared in. This means that arrow functions have a much more intuitive feel when being passed 
+    around into other contexts.
+    Arrow functions give you more flexibility to move from minimal to verbose where traditional 
+    JavaScript functions only have one form: verbose. Arrow functions are also more intuitive regarding 
+    scope and this. They are preferred when passing a callback.
+
+Traditional functions:
+    Traditional functions No matter where you declare and call the function, Hoisting is the key. 
+    Once you declare it, you won't lose it from memory. traditional functions bind with any object.
+
+Example:
+
+var obj = {
+    num: 100
+}
+
+window.num = 200;
+
+// traditional function
+
+var add = function (a, b, c) {
+  return this.num + a + b + c;
+}
+
+var result = add.bind(obj)
+console.log(result(1, 2, 3))  // 106 
+
+// arrow function
+
+var add = (a, b, c) => this.num + a + b + c;
+
+const result = add.bind(obj)
+console.log(bound(1, 2, 3)) // 206
+
+here, traditional function is bind with object(obj) but arrow function not bind with object(obj).
